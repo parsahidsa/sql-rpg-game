@@ -1,0 +1,22 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+#game {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+textarea {
+  width: 100%;
+  font-family: monospace;
+}
+#result {
+  background: #eee;
+  padding: 10px;
+  margin-top: 10px;
+  white-space: pre-wrap;
+}

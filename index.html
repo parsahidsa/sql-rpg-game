@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SQL RPG Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game">
+    <h1>SQL RPG - Stage <span id="stage-number">1</span></h1>
+    <p id="mission-text">Loading mission...</p>
+    <textarea id="sql-input" rows="6" placeholder="Write your SQL here..."></textarea>
+    <button id="run-btn">Run Query</button>
+    <pre id="result"></pre>
+    <p id="feedback"></p>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
