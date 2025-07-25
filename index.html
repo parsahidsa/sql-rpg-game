@@ -2,36 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DataQuest - Learn SQL</title>
+  <title>DataQuest Adventure</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
+  <div class="game-container">
     <header>
-      <h1>🎓 DataQuest: Learn SQL with Fun</h1>
+      <h1>🧠 DataQuest: SQL Adventure</h1>
+      <p class="subtitle">Level up your SQL skills on a quest for data mastery!</p>
     </header>
-    <main>
-      <section class="mission-panel">
+
+    <section class="mission-box">
+      <div class="npc-avatar">🧙‍♂️</div>
+      <div class="npc-dialogue">
         <h2 id="stage-title">Stage 1: Count Orders</h2>
-        <p id="mission-text">Count how many orders exist in the orders table.</p>
-      </section>
+        <p id="mission-text">"Hey Analyst! Count how many orders exist in the <code>orders</code> table."</p>
+      </div>
+    </section>
 
-      <section class="console-panel">
-        <textarea id="sql-input" placeholder="Write your SQL here..."></textarea>
-        <button id="run-btn">▶ Run Query</button>
-        <pre id="result-table">Result will appear here...</pre>
-        <p id="feedback"></p>
-      </section>
-
-      <section class="data-panel">
+    <section class="main-panel">
+      <div class="data-preview">
         <h3>📊 Preview Data</h3>
-        <div class="tables">
+        <div class="btn-group">
           <button onclick="showTable('orders')">Orders</button>
           <button onclick="showTable('order_items')">Order Items</button>
         </div>
         <pre id="table-preview">Click a table to preview its content.</pre>
-      </section>
-    </main>
+      </div>
+
+      <div class="query-box">
+        <textarea id="sql-input" placeholder="Write your SQL query here..."></textarea>
+        <button id="run-btn">▶ Run Query</button>
+        <div id="result-table">Query result will appear here.</div>
+        <p id="feedback"></p>
+      </div>
+    </section>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
