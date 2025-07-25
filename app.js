@@ -3,7 +3,7 @@ let db, stage = 0;
 const stages = [
   {
     title: "Stage 1: Count Orders",
-    mission: "Count how many orders exist in the orders table.",
+    mission: "Hey Analyst! Count how many orders exist in the orders table.",
     answerCheck: (rows) => rows[0]?.values[0] == 6
   },
   {
@@ -25,12 +25,11 @@ function showStage() {
   document.getElementById("mission-text").textContent = stages[stage].mission;
   document.getElementById("feedback").textContent = "";
   document.getElementById("sql-input").value = "";
-  document.getElementById("result-table").textContent = "Result will appear here...";
+  document.getElementById("result-table").innerHTML = "Query result will appear here.";
 }
 
 function showTable(name) {
-  const query = "SELECT * FROM " + name;
-  const res = db.exec(query);
+  const res = db.exec("SELECT * FROM " + name);
   if (res.length > 0) {
     const cols = res[0].columns;
     const rows = res[0].values;
@@ -73,15 +72,15 @@ document.getElementById("run-btn").addEventListener("click", () => {
     }
 
     if (stages[stage].answerCheck(res)) {
-      document.getElementById("feedback").textContent = "✅ Correct! Advancing to next stage...";
+      document.getElementById("feedback").textContent = "✅ Excellent! Moving to the next stage...";
       stage++;
       if (stage < stages.length) setTimeout(showStage, 1500);
-      else document.getElementById("feedback").textContent += " 🎉 You've completed the game!";
+      else document.getElementById("feedback").textContent += " 🎉 You've mastered the game!";
     } else {
-      document.getElementById("feedback").textContent = "❌ Incorrect result. Try again.";
+      document.getElementById("feedback").textContent = "❌ Nope... check your query.";
     }
   } catch (e) {
     document.getElementById("result-table").textContent = e.message;
-    document.getElementById("feedback").textContent = "⛔ Error running query.";
+    document.getElementById("feedback").textContent = "⛔ Query error.";
   }
 });
