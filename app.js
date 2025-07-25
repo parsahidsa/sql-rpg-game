@@ -1,86 +1,69 @@
-let db, stage = 0;
-
-const stages = [
-  {
-    title: "Stage 1: Count Orders",
-    mission: "Hey Analyst! Count how many orders exist in the orders table.",
-    answerCheck: (rows) => rows[0]?.values[0] == 6
-  },
-  {
-    title: "Stage 2: Loyal Customers",
-    mission: "Find customers who placed more than 3 orders.",
-    answerCheck: (rows) => rows.length === 1 && rows[0].values[0] == 1
-  }
-];
+let db, stage = 0, countdown = 20, timer;
 
 const dbInitSql = `
 CREATE TABLE orders (id INTEGER, customer_id INTEGER);
-INSERT INTO orders VALUES (1,1),(2,2),(3,1),(4,3),(5,1),(6,1);
-CREATE TABLE order_items (id INTEGER, order_id INTEGER, product_id INTEGER);
-INSERT INTO order_items VALUES (1,1,1),(2,2,2),(3,3,2),(4,4,3),(5,5,2),(6,6,2);
+INSERT INTO orders VALUES (1,1),(2,1),(3,2),(4,1),(5,3),(6,1);
 `;
 
-function showStage() {
-  document.getElementById("stage-title").textContent = stages[stage].title;
-  document.getElementById("mission-text").textContent = stages[stage].mission;
-  document.getElementById("feedback").textContent = "";
-  document.getElementById("sql-input").value = "";
-  document.getElementById("result-table").innerHTML = "Query result will appear here.";
-}
-
-function showTable(name) {
-  const res = db.exec("SELECT * FROM " + name);
-  if (res.length > 0) {
-    const cols = res[0].columns;
-    const rows = res[0].values;
-    let html = cols.join(" | ") + "\n";
-    html += "-".repeat(40) + "\n";
-    for (const row of rows) {
-      html += row.join(" | ") + "\n";
-    }
-    document.getElementById("table-preview").textContent = html;
-  }
-}
-
-initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${filename}` }).then(SQL => {
+initSqlJs({ locateFile: f => "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/" + f }).then(SQL => {
   db = new SQL.Database();
   db.run(dbInitSql);
-  showStage();
+  startCountdown();
+  showDialogue("You have 20 seconds. Do it. Now!");
 });
+
+function startCountdown() {
+  updateTimer();
+  timer = setInterval(() => {
+    countdown--;
+    updateTimer();
+    if (countdown === 10) {
+      showDialogue("Still not done?! Move it!");
+      document.getElementById("boss-face").style.transform = "scale(1.05)";
+    }
+    if (countdown === 1) {
+      document.getElementById("boss-face").classList.add("shake");
+    }
+    if (countdown === 0) {
+      clearInterval(timer);
+      showDialogue("TIME'S UP! You're fired!");
+      document.getElementById("boss-face").src = "assets/boss-angry.png";
+      document.querySelector(".office").classList.add("shake");
+    }
+  }, 1000);
+}
+
+function updateTimer() {
+  document.getElementById("timer").textContent = `⏳ ${countdown}s`;
+}
+
+function showDialogue(text) {
+  const box = document.getElementById("boss-dialogue");
+  box.textContent = text;
+  box.style.display = "block";
+  setTimeout(() => { box.style.display = "none"; }, 4000);
+}
 
 document.getElementById("run-btn").addEventListener("click", () => {
   const code = document.getElementById("sql-input").value;
   try {
     const res = db.exec(code);
+    let output = "";
     if (res.length > 0) {
-      let output = "<table><tr>";
-      res[0].columns.forEach(col => {
-        output += `<th>${col}</th>`;
-      });
-      output += "</tr>";
-      res[0].values.forEach(row => {
-        output += "<tr>";
-        row.forEach(val => {
-          output += `<td>${val}</td>`;
-        });
-        output += "</tr>";
+      const cols = res[0].columns;
+      const rows = res[0].values;
+      output += "<table><tr>" + cols.map(c => `<th>${c}</th>`).join("") + "</tr>";
+      rows.forEach(r => {
+        output += "<tr>" + r.map(val => `<td>${val}</td>`).join("") + "</tr>";
       });
       output += "</table>";
-      document.getElementById("result-table").innerHTML = output;
     } else {
-      document.getElementById("result-table").textContent = "No results.";
+      output = "No results.";
     }
-
-    if (stages[stage].answerCheck(res)) {
-      document.getElementById("feedback").textContent = "✅ Excellent! Moving to the next stage...";
-      stage++;
-      if (stage < stages.length) setTimeout(showStage, 1500);
-      else document.getElementById("feedback").textContent += " 🎉 You've mastered the game!";
-    } else {
-      document.getElementById("feedback").textContent = "❌ Nope... check your query.";
-    }
+    document.getElementById("result-table").innerHTML = output;
+    document.getElementById("feedback").textContent = "";
   } catch (e) {
     document.getElementById("result-table").textContent = e.message;
-    document.getElementById("feedback").textContent = "⛔ Query error.";
+    document.getElementById("feedback").textContent = "⛔ Error in query.";
   }
 });
