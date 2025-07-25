@@ -2,33 +2,45 @@ let db, stage = 0;
 
 const stages = [
   {
-    mission: "مرحله 1: تعداد کل سفارش‌ها را از جدول orders پیدا کن.",
-    answerCheck: (rows) => rows[0].values[0] == 6
+    title: "Stage 1: Count Orders",
+    mission: "Count how many orders exist in the orders table.",
+    answerCheck: (rows) => rows[0]?.values[0] == 6
   },
   {
-    mission: "مرحله 2: مشتریانی که بیش از ۳ سفارش داشته‌اند را نمایش بده.",
+    title: "Stage 2: Loyal Customers",
+    mission: "Find customers who placed more than 3 orders.",
     answerCheck: (rows) => rows.length === 1 && rows[0].values[0] == 1
-  },
-  {
-    mission: "مرحله 3: محصولی را بیاب که بیشترین فروش را داشته است.",
-    answerCheck: (rows) => rows.length === 1 && rows[0].values[0] == 2
   }
 ];
 
 const dbInitSql = `
 CREATE TABLE orders (id INTEGER, customer_id INTEGER);
-INSERT INTO orders VALUES (1, 1), (2, 2), (3, 1), (4, 3), (5, 1), (6, 1);
-
+INSERT INTO orders VALUES (1,1),(2,2),(3,1),(4,3),(5,1),(6,1);
 CREATE TABLE order_items (id INTEGER, order_id INTEGER, product_id INTEGER);
-INSERT INTO order_items VALUES
-(1,1,1), (2,2,2), (3,3,2), (4,4,3), (5,5,2), (6,6,2);
+INSERT INTO order_items VALUES (1,1,1),(2,2,2),(3,3,2),(4,4,3),(5,5,2),(6,6,2);
 `;
 
 function showStage() {
-  document.getElementById("stage-number").textContent = stage + 1;
+  document.getElementById("stage-title").textContent = stages[stage].title;
   document.getElementById("mission-text").textContent = stages[stage].mission;
   document.getElementById("feedback").textContent = "";
   document.getElementById("sql-input").value = "";
+  document.getElementById("result-table").textContent = "Result will appear here...";
+}
+
+function showTable(name) {
+  const query = "SELECT * FROM " + name;
+  const res = db.exec(query);
+  if (res.length > 0) {
+    const cols = res[0].columns;
+    const rows = res[0].values;
+    let html = cols.join(" | ") + "\n";
+    html += "-".repeat(40) + "\n";
+    for (const row of rows) {
+      html += row.join(" | ") + "\n";
+    }
+    document.getElementById("table-preview").textContent = html;
+  }
 }
 
 initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${filename}` }).then(SQL => {
@@ -41,17 +53,35 @@ document.getElementById("run-btn").addEventListener("click", () => {
   const code = document.getElementById("sql-input").value;
   try {
     const res = db.exec(code);
-    document.getElementById("result").textContent = JSON.stringify(res[0], null, 2);
+    if (res.length > 0) {
+      let output = "<table><tr>";
+      res[0].columns.forEach(col => {
+        output += `<th>${col}</th>`;
+      });
+      output += "</tr>";
+      res[0].values.forEach(row => {
+        output += "<tr>";
+        row.forEach(val => {
+          output += `<td>${val}</td>`;
+        });
+        output += "</tr>";
+      });
+      output += "</table>";
+      document.getElementById("result-table").innerHTML = output;
+    } else {
+      document.getElementById("result-table").textContent = "No results.";
+    }
+
     if (stages[stage].answerCheck(res)) {
-      document.getElementById("feedback").textContent = "✅ درست بود! می‌ری به مرحله بعدی...";
+      document.getElementById("feedback").textContent = "✅ Correct! Advancing to next stage...";
       stage++;
       if (stage < stages.length) setTimeout(showStage, 1500);
-      else document.getElementById("feedback").textContent += " 🎉 تبریک! بازی تموم شد.";
+      else document.getElementById("feedback").textContent += " 🎉 You've completed the game!";
     } else {
-      document.getElementById("feedback").textContent = "❌ خروجی اشتباهه. دوباره امتحان کن.";
+      document.getElementById("feedback").textContent = "❌ Incorrect result. Try again.";
     }
   } catch (e) {
-    document.getElementById("result").textContent = e.message;
-    document.getElementById("feedback").textContent = "⛔ خطا در اجرای کوئری.";
+    document.getElementById("result-table").textContent = e.message;
+    document.getElementById("feedback").textContent = "⛔ Error running query.";
   }
 });
